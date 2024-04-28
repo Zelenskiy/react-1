@@ -1,11 +1,10 @@
 import "./styles/App.css";
-
 import { useState, useMemo } from "react";
 import PostList from "./components/PostList";
-
 import PostForm from "./components/PostForm";
-
 import PostFilter from "./components/PostFilter";
+import MyModal from "./components/UI/MyModal/MyModal";
+import MyButton from "./components/UI/button/MyButton";
 
 function App() {
   const [posts, setPosts] = useState([
@@ -14,16 +13,17 @@ function App() {
     { id: 3, title: "xcxccx", body: "ttr 3" },
     { id: 4, title: "3rre", body: "fdgdfg 4" },
   ]);
+  const [modal, setModal] = useState(false)
+
 
   const createPost = (newPost) => {
     setPosts([...posts, newPost])
+    setModal(false)
   }
   const removePost = (post) => {
     setPosts(posts.filter(p => p.id !== post.id))
   }
 
-  // const [selectedSort, setSelectedSort] = useState('')
-  // const [searchQuery, setSearchQuery] = useState('')
   const [filter, setFilter] = useState({sort: '', query: ''})
 
 
@@ -44,7 +44,16 @@ function App() {
 
   return (
     <div className="App">
+      <MyButton style={{marginTop: '30px'}} onClick={() => setModal(true)}>
+        Add post
+      </MyButton>
+      <MyModal
+        visible={modal}
+        setVisible={setModal}
+      >
       <PostForm create={createPost} />
+      </MyModal>
+      
       <hr style={{margine: '15px 0'}}/>
       <PostFilter 
         filter={filter}
