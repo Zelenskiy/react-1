@@ -1,10 +1,11 @@
 import "./styles/App.css";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import PostList from "./components/PostList";
 
 import PostForm from "./components/PostForm";
 import MySelect from "./components/UI/select/MySelect";
+import MyInput from "./components/UI/input/MyInput";
 
 function App() {
   const [posts, setPosts] = useState([
@@ -22,18 +23,43 @@ function App() {
   }
 
   const [selectedSort, setSelectedSort] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+
+
+  const sortedPosts = useMemo(() => {
+    console.log(11222);
+    if (selectedSort) {
+      return [...posts].sort((a, b) => a[selectedSort].localeCompare(b[selectedSort]))
+    } else {
+      return posts
+    }
+  }, [selectedSort, posts])
 
   const sortPosts = (sort) => {
     setSelectedSort(sort)
-    console.log(sort);
-    setPosts([...posts].sort((a, b) => a[sort].localeCompare(b[sort])))
+    
   }
+
+  const sortedAndSeachedPosts = useMemo(() => {
+    return sortedPosts.filter(post => post.title.toLowerCase().includes(searchQuery.toLowerCase()))
+  }, [searchQuery, sortedPosts])
+
+  // const setSearchQuery = (e) => {
+  //   console.log();
+  // }
 
   return (
     <div className="App">
       <PostForm create={createPost} />
       <hr style={{margine: '15px 0'}}/>
-      <MySelect 
+      <div>
+        <MyInput 
+          placeholder='Search...'
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+
+        />
+        <MySelect 
         value={selectedSort}
         onChange={sortPosts}
         defaultValue='Сортування'
@@ -42,8 +68,10 @@ function App() {
           {value: 'body', name: 'По опису'},
       ]}
       />
-      {posts.length !== 0
-        ? <PostList remove={removePost} posts={posts} title="Пости про JS" />
+      </div>
+      
+      {sortedAndSeachedPosts.length !== 0
+        ? <PostList remove={removePost} posts={sortedAndSeachedPosts} title="Пости про JS" />
         : <h1 style={{textAlign: 'center'}}>Пости не знайдено</h1>
       }
       
