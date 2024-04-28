@@ -8,10 +8,18 @@ import MyButton from "./components/UI/button/MyButton";
 import { usePosts } from "./hooks/usePosts";
 
 import PostService from "./API/PostService";
+import Loader from "./components/UI/loader/Loader";
+import { useFetching } from "./hooks/useFetching";
 
 function App() {
   const [posts, setPosts] = useState([]);
   const [modal, setModal] = useState(false)
+
+  const [fetchPosts, isPostLoading, postError] = useFetching(async () => {
+    console.log('333333333');
+    const posts = await PostService.getAll()
+    setPosts(posts);
+  })
 
   useEffect(() => {
     fetchPosts()
@@ -27,11 +35,6 @@ function App() {
 
   const [filter, setFilter] = useState({sort: '', query: ''})
   const sortedAndSeachedPosts = usePosts(posts, filter.sort, filter.query)
-
-  async function fetchPosts() {
-    const posts = await PostService.getAll()
-    setPosts(posts);
-  }
 
   return (
     <div className="App">
@@ -50,7 +53,14 @@ function App() {
         filter={filter}
         setFilter={setFilter}
       />
-      <PostList remove={removePost} posts={sortedAndSeachedPosts} title="Пости про JS" />
+      {postError &&
+        <h1>Is Error ${postError}</h1>
+      }
+      {isPostLoading
+        ?<Loader/>
+        :<PostList remove={removePost} posts={sortedAndSeachedPosts} title="Пости про JS" />
+      }
+      
     </div>
   );
 }
